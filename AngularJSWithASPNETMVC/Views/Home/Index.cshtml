@@ -1,0 +1,98 @@
+﻿@{
+    ViewBag.Title = "Home Page";
+}
+
+<div class="container" ng-app="myApp">
+    <div class="jumbotron">
+        <h1>AngularJS With ASP.NET MVC</h1>
+        <p class="lead">AngularJS lets you extend HTML vocabulary for your application.</p>
+        <p><a href="https://angularjs.org/" target="_blank" class="btn btn-primary btn-lg">Learn more &raquo;</a></p>
+    </div>
+
+    <div class="row" ng-controller="myAppController">
+        <div class="col-xs-12 col-sm-12 col-md-12 col-xl-12">
+            <input type="text" ng-model="inputdata" /><br />
+            Output: {{ inputdata }}<br />
+            From Controller: {{ somestring }}<br />
+            First Name: {{ employeeModel.FirstName }}<br />
+            Last Name: {{ employeeModel.LastName }}<br />
+            <input type="submit" ng-click="update(inputdata)" value="Update" /><br />
+            <br />
+            <button type="button" ng-click="GetGithubUser()">Find Github User</button>
+            <br />
+            Username: {{ user.login }}<br />
+            Name: {{ user.name }}<br />
+            <p>
+                <div ng-hide="repos == ''">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Repository Name</th>
+                            </tr>
+                        </thead>
+                        <tr ng-repeat="rep in repos">
+                            <td> {{ rep.name }} </td>
+                        </tr>
+                    </table>
+                </div>
+            </p>
+        </div>
+    </div>
+
+
+    <div class="row">
+        <div class="col-md-4">
+            <h2>AngularJS API Docs</h2>
+            <p>
+                Welcome to the AngularJS API docs page. These pages contain the AngularJS reference materials for version 1.5.10
+            </p>
+            <p><a class="btn btn-default" href="https://docs.angularjs.org/api/" target="_blank">Learn more &raquo;</a></p>
+        </div>
+        <div class="col-md-4">
+            <h2>AngularJS Tutorial</h2>
+            <p>A great way to get introduced to AngularJS is to work through this tutorial, which walks you through the construction of an Angular web app.</p>
+            <p><a class="btn btn-default" href="https://docs.angularjs.org/tutorial" target="_blank">Learn more &raquo;</a></p>
+        </div>
+        <div class="col-md-4">
+            <h2>FAQ AngularJS</h2>
+            <p>FAQ. Questions. Why is this project called "AngularJS"? Why is the namespace called "ng"?</p>
+            <p><a class="btn btn-default" href="https://docs.angularjs.org/misc/faq" target="_blank">Learn more &raquo;</a></p>
+        </div>
+    </div>
+</div>
+
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.7/angular.min.js"></script>
+<script type="text/javascript">
+    var myApp = angular.module('myApp', []);
+
+    myApp.controller('myAppController', function ($scope, $http) {
+        $scope.repos = '';
+        $scope.somestring = 'test string';
+        $scope.employeeModel = @Html.Raw(Json.Encode(Model));
+
+        var onGetComplete = function(response) {
+            $scope.user = response.data;
+            $http.get($scope.user.repos_url).then(onGetRepos);
+        };
+
+        var onGetRepos = function(response){
+            $scope.repos = response.data;
+        };
+
+        $scope.GetGithubUser = function(response) {
+            $http.get("https://api.github.com/users/aacostamx").then(onGetComplete);
+        };
+
+        $scope.update = function(inputText) {
+            $http({
+                method: 'GET',
+                url: '/Home/UpdateDate?Input=' + inputText
+            }).then(function successCallback(response) {
+                $scope.somestring = response.data.Input;
+                $scope.employeeModel = response.data;
+            }, function errorCallback(response) {
+                console.log(reponse);
+            });
+        }
+    });
+</script>
